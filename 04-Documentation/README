@@ -1,0 +1,62 @@
+Getting Started
+===============
+
+This in-memory key value server runs a http service against port 8080 and TCP/UDP services against port 9000
+
+Download dependencies
+---------------------
+
+From: 03-Implementation/app/
+Run: make deps
+
+To build
+--------
+
+From: 03-Implementation/app/
+Run: make
+
+This compiles the application and creates the binary
+
+
+To Run
+------
+
+From: 03-Implementation/app/
+Run: ./_rel/app_release/bin/app_release start
+
+This started the application
+
+
+To Shutdown
+-----------
+
+From: 03-Implementation/app/
+Run: ./_rel/app_release/bin/app_release stop
+
+This stops the application gracefully
+
+
+How to use
+==========
+
+For TCP/UDP the format is using an alphanumeric key, a single space (char 32) and then your value.
+
+TCP
+---
+
+Easiest way is to use netcat from the command line
+
+`nc localhost 9000`
+
+UDP
+---
+
+`nc -ul localhost 9000`
+
+HTTP
+----
+
+For HTTP, POST to the URL were the key is the path and the value is the body
+
+`curl -d "world" http://localhost:8080/hello`
+`curl http://localhost:8080/hello`

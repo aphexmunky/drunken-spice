@@ -1,0 +1,36 @@
+TCP & UDP
+=========
+
+Since TCP contains sequence numbers and checksums and the OS deals with this, it provides integrity checking for free.
+UDP does not have this luxury and so I should consider the concequences of this for my key value server.
+
+1. How do I know that the transmission is finished?
+
+Solution 1
+Close the connection required for every discreet operation
+ + Clean and simple
+ + Allows command line tools to be easily used as existing clients
+ - Slower forcing handshakes for every request
+
+Solution 2
+Create a data structure that encapsulates a signal for the end of the value
+ + Clean
+ + Can keep connections open
+ - Makes it difficult to use existing command line tools with it
+
+
+
+
+2. How do I know that the UDP datagram is complete and not suffering from fragmentation?
+
+Solution 1
+Create a data structure that encapsulates a checksum
+ + Clean
+ - There's no obvious suggestion this is required
+ - If the client wants integrity of their value they should probably use TCP instead
+
+Solution 2
+Don't handle the scenario
+ + Clean and simple
+ + Allows command line tools to be easily used as existing clients
+ - Could make it difficult to get larger data in via UDP

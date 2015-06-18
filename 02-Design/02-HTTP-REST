@@ -1,0 +1,26 @@
+Storage
+-------
+
+ | Verb | Path          | Request Details                                              | Response Details                          |
+ |------|---------------|--------------------------------------------------------------|-------------------------------------------|
+ | POST	| /{key}        | Body is the value to be stored                               | 200 OK if successful                      |
+ |      |               |                                                              | 304 NOT MODIFIED if unsuccessful          |
+ |      |               |                                                              |                                           |
+ |      |               |                                                              | Body will be empty                        |
+ |------|---------------|--------------------------------------------------------------|-------------------------------------------|
+
+
+Retrieve
+--------
+
+ | Verb | Path          | Request Details                                              | Response Details                          |
+ |------|---------------|--------------------------------------------------------------|-------------------------------------------|
+ | GET	| /{key}        | No prerequisites                                             | 200 OK if key has a value associated      |
+ |      |               |                                                              | 404 NOT FOUND if key not stored           |
+ |      |               |                                                              |                                           |
+ |      |               |                                                              | Body will be the value stored against the |
+ |      |               |                                                              | key.                                      |
+ |      |               |                                                              |                                           |
+ |      |               |                                                              | Body will be empty for 404 response       |
+ |------|---------------|--------------------------------------------------------------|-------------------------------------------|
+

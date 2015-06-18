@@ -1,0 +1,14 @@
+{application, app, [
+	{description, ""},
+	{vsn, "0.1.0"},
+	{id, "git"},
+	{modules, []},
+	{registered, []},
+	{applications, [
+		kernel,
+		cowboy,
+		stdlib
+	]},
+	{mod, {app_app, []}},
+	{env, []}
+]}.

@@ -1,0 +1,133 @@
+Language/Framework Considerations
+=================================
+
+
+Desired Features
+----------------
+
+ * Easy concurrency
+      nobody wants blocking in a server application
+ * Low latency
+      since TCP and UDP are requirements I think it's a reasonable assumption that latency is a concern
+ * Binary types and/or good byte level control
+
+Considered Languages
+--------------------
+
+Erlang
+Go
+C
+Java
+Scala + Akka
+Python / Ruby
+
+I've chosen these as relevant and popular languages that can be used to solve this problem, while including some contrast in ways that the problem would be solved in that technology.
+No choice is going to be a silver bullet but it makes sense to use the most appropriate tools for the job.
+
+
+Language Review
+---------------
+
+** Erlang **
+
++ Known to be strong at network / server applications
++ Excellent for a high number of concurrent users
++ Erlang used by bet365 so could show aptitude for the role
++ I already understand the actor model
++ Rise of multicore architecture makes the concurrency model very viable
++ Lots of information online - LYSEFGG
+
+- Not wrote any before and being reviewed by Erlang dev, impression of coding could be affected, not aware of all nuances that could be easily spotted by the familar
+- Not the fastest option for low latency in a less concurrent environment
+
+
+
+** Go **
+
++ Designed for systems programming, good for server applications
++ Concurrency built in
++ Very low latency
++ Binaries
++ Easier (or I understand better) how to get an immediate iteration cycle over the code
+
+- Language is stabalising now but I think it's future direction is still a contention point by core devs
+
+
+
+** C **
+
++ Very low latency
++ Binaries
+
+- Verbose
+- Far easier to get wrong than right
+
+
+
+** Java **
+
++ Very familar
++ Lots of examples and code snippets
++ Immense ecosystem to draw from to solve problems
+
+- Need to either tackle the concurrency myself or use libs
+- Built in IO and NIO is verbose and unintuitive
+- Language is in a transitional phase as it starts adopting features from functional programming
+
+
+
+** Scala + Akka **
+
++ Very familar
++ Demonstrate actor pattern knowledge
++ Better support for concurrency
+
+- Still evolving
+- "Too many ways to skin a cat" - So many language features means many problems have many solutions
+- Using Akka to abstract over the TCP and UDP could hinder my ability to demonstrate knowledge of its workings
+
+
+
+** Python / Ruby **
+
++ Rapid for arriving at a working solution quickly
++ Lots of examples and code snippets
++ Easy for colleagues / almost any dev to pick up and read
+
+- Error handling is a bit clunky
+- Not very natural to write concurrent code
+
+
+
+Language decision
+-----------------
+
+I have ruled out C due to its verbosity; lack of garbage collection; segfaults; buffer exploits and a million other reasons. While it might have been the right choice for the redis creator it was also a commitment.
+
+I'm ruling out the Python and Ruby next. My assumption of TCP UDP inclusion means low latency is a concern puts the cost of these languages too high.
+
+Java shouldn't be used for this problem because while their slogan might be "Write once, run anywhere" - you typically end up considering and targetting the end hardware configuration for concurrent code. It's verbose, error prone and usually avoided in businesses by using application containers. Dealing with TCP and UDP connections too means I would need to deal with the concurrency anyway.
+
+Scala with Akka I would be tempted to use since I'm using them together daily so it would be easier for me to write. The concurrency is easy to deal with and scales well with hardware.
+Akka abstracts over Netty which abstracts over NIO though which deteriorates the value of the exercise.
+
+That leaves Go and Erlang. Both of which feel like good options and I don't have much argument against either. Go's api docs show good support for byte level control and sockets as does Erlang. Since the role is Erlang based it makes sense to get my feet wet.
+
+
+
+
+
+Framework review
+----------------
+
+It seems pointless to write a HTTP Server when many already exist. Having looked at 'Awesome Erlang' the web frameworks are:
+
+* Axiom
+* ChicagoBoss
+* cowboy
+* Giallo
+* MochiWeb
+* N20
+* Zotonic
+
+I don't have much need in terms of features for the framework I choose. Just the ability to accept HTTP requests and push responses with status codes will likely do it. When I get to implementation i'll see which seem most appealing.

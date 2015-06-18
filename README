@@ -1,0 +1,4 @@
+Key Value Store
+===============
+
+Develop an in-memory key value store. The store must support data storage and retrieval through TCP, UDP, and http REST interfaces. The store must cater for arbitrary data types.

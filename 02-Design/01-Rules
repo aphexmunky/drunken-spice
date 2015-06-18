@@ -1,0 +1,12 @@
+Common
+ - Storage requests to an existing key will replace the value
+ - Keys are limited to alphanumeric characters seperated by a control character
+
+TCP
+ - Retrieve requests for unassigned keys will receive a reply with no payload
+UDP
+ - Retrieve requests for unassigned keys will receive a reply with no payload
+
+HTTP
+ - The URL path will determine the key
+ - Stores will take the whole body as the value

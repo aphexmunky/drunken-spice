@@ -1,0 +1,23 @@
+Questions & Responses
+=====================
+
+Q: 1. Are both exercises equal? Is it to my favour to tackle one over the other?
+A: Both are equal
+
+Q: 2. Is there a scenario or intended use case of the output of the exercise which might guide assumptions i'm making?
+A: Not really, apart from storing/retrieving data, and routing messages based on subscriptions.
+
+Q: 3. Is there an intended limit to the time I spend on the exercise? Should I be logging time spent towards the output?
+A: No limit.
+
+Q: 4. It's not specified if the key-value store should be persistent - is there a preference here?
+A: No persistence is fine.
+
+Q: 5. In the case of UDP, can i presume a storage request is limited to a single packet - if not, are there any requirements for TTL for a request?
+A: Single packet is fine.
+
+Q: 6. I'm presuming part of the point of the exercise is to demonstrate tcp/ip knowledge, if i used a framework/library that abstracted this away would this be detrimental to me?
+A: Using libs is fine, but you’re right, the exercise is designed to show your technical knowledge, not your knowledge of libs. It depends how abstract the lib is.
+
+Q: 7. is there a preference for composition of the application? - if i chose to do a separate application for http that depended on a core tcp + udp application would that be as valid?
+A: Your choice. Reasoning as to why you picked one approach over the other would be good.
