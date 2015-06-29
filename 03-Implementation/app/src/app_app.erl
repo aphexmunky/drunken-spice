@@ -3,14 +3,14 @@
 
 -export([start/2]).
 -export([stop/1]).
--export([udpLoop/1, tcpLoop/1, handlePacket/1]).
+-export([udp_loop/1, tcp_loop/1, handle_packet/1]).
 
 start(_Type, _Args) ->
     ets:new(storage, [set, public, named_table]),
     {ok, UDPSocket}   = gen_udp:open(9000, [{active, false}]),
     {ok, TCPListener} = gen_tcp:listen(9000, [{active, false}]),
-    spawn(app_app, tcpLoop, [TCPListener]),
-    spawn(app_app, udpLoop, [UDPSocket]),
+    spawn(app_app, tcp_loop, [TCPListener]),
+    spawn(app_app, udp_loop, [UDPSocket]),
 
     Dispatch = cowboy_router:compile([
         {'_', [{"/:key", keyreq_handler, []}]}
@@ -20,23 +20,23 @@ start(_Type, _Args) ->
     ),
     app_sup:start_link().
 
-tcpLoop(Listener) ->
+tcp_loop(Listener) ->
   {ok, TCPSocket} = gen_tcp:accept(Listener),
-  TCPHandler = spawn(app_app, handlePacket, [TCPSocket]),
+  TCPHandler = spawn(app_app, handle_packet, [TCPSocket]),
   TCPHandler ! gen_tcp:recv(TCPSocket, 0),
-  tcpLoop(Listener).
+  tcp_loop(Listener).
 
-udpLoop(Socket) ->
-  Handler = spawn(app_app, handlePacket, [Socket]),
+udp_loop(Socket) ->
+  Handler = spawn(app_app, handle_packet, [Socket]),
   Handler ! gen_udp:recv(Socket, 0),
-  udpLoop(Socket).
+  udp_loop(Socket).
 
-handlePacket(Socket) ->
+handle_packet(Socket) ->
   receive
     {ok,{Address, Port, Msg}}	-> handleUDP_transmission(Socket, Address, Port, Msg);
     {ok, Packet}				-> handleTCP_transmission(Socket, Packet)
   end,
-  handlePacket(Socket).
+  handle_packet(Socket).
 
 handleTCP_transmission(Socket, Packet) ->
 	Res = store(Packet),
