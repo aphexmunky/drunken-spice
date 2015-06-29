@@ -1,0 +1,111 @@
+* Now talking on #erlang
+* Topic for #erlang is: Erlang, the programming language | Current Stable Version (18.0): erlang.org/download_release/, github.com/erlang/otp | Docs: erlang.org/erldoc, learnyousomeerlang.com | Community: erlangcentral.org, thisotplife.tumblr.com, #erlounge for banter | Official site: erlang.org
+* Topic for #erlang set by MononcQc!~ferd@li101-172.members.linode.com (Wed Jun 24 15:52:40 2015)
+<aphexmunky> Hi, I was hoping someone could do a small code review for me please - new to erlang and keen to get a more experienced eye on what i've done
+<MachinShin> paste a link to your code :)
+<aphexmunky> https://github.com/aphexmunky/drunken-spice
+* bturker has quit (Ping timeout: 265 seconds)
+<MachinShin> this for learning?
+<aphexmunky> it was originally for a job interview but i've been declined without feedback, so seeking to see what i've done wrong
+<aphexmunky> i'd still like to improve regardless of the lost prospect
+* eletuchy (~eletuchy@2620:10d:c082:1011:7ec3:a1ff:fe88:9a3d) has joined
+<winlu> no proper supervisor tree
+<winlu> probably the biggest boob without looking deeper into it
+<aphexmunky> ok, i'll spend some time reading http://learnyousomeerlang.com/supervisors :)
+<winlu> you pretty much neglected one of the biggest strenghts of the language
+<aphexmunky> i had figured that one-to-one meant that each process would fail independently and wouldn't affect other users etc
+<dawik> i think he meant it doesnt have a proper child specification
+<winlu> one_for_one does mean that, but your supervisor does start nothing
+<winlu> you start via spawns
+<winlu> in your app file
+<aphexmunky> could you explain that a bit more please? In scala/akka land when you spawn an actor it automatically gets supervised by the creator. Is that not happening in my code?
+<winlu> your supervisor doesn't do anything
+<alisdair> aphexmunky: you don't need supervision in your app because you have no permanent processes that aren't handled by some other app
+<alisdair> cowboy supervises it's own handlers
+<alisdair> actually, whatever you're doing in udp/tcp handlers probably should be supervised
+* conan_the_destro has quit (Quit: Textual IRC Client: www.textualapp.com)
+<alisdair> was the assignment to make a k/v store available over http, raw tcp and raw udp?
+<aphexmunky> i had believed that the supervisor would automatically be handling the udp/tcp spawned processes
+<aphexmunky> alisdair: yes
+<alisdair> you need to place them under supervision explicitly
+<lpgauth_> err, why doesn't xref take into account nowarn_unused_function :/
+* conan_the_destro (~textual@unaffiliated/fridder) has joined
+<alisdair> also, you should probably move most of what's in app_app into their own modules
+<aphexmunky> alisdair ok that's helpful i wasn't aware of that difference between erlang and akka
+<alisdair> it's not gonna break anything to have everything in there but it's definitely something erlang devs are gonna hammer you for on style
+<alisdair> without reading the assignment the code itself looks ok
+<aphexmunky> ok thank you that's very helpful
+<alisdair> oh
+<alisdair> you are spawning limitless processes
+<alisdair> with your udp/tcp receive code
+* refefer has quit (Ping timeout: 256 seconds)
+<alisdair> handlePacket should just exit after reading a packet
+* vkovalev1 (~vkovalev@176.96.185.149) has joined
+<alisdair> since you spawn a new process per gen_tcp/udp:recv
+<alisdair> so your handlePacket function is reading a single packet then looping and waiting for another message that will never come
+* YurinVV has quit (Read error: Connection reset by peer)
+<aphexmunky> won't they block though?
+* manizzle (~manizzle_@107-220-114-180.lightspeed.sntcca.sbcglobal.net) has joined
+<alisdair> also if you're going to spawn a process per packet like that you don't need to place them under supervision in my opinion, but you probably want to supervise tcpLoop and udpLoop
+<alisdair> they will block on recieve, yes, but you only ever send them a single packet so they may as well terminate
+* mc_ has quit (Ping timeout: 272 seconds)
+* w3pm (~w3pm@rrcs-24-43-59-146.west.biz.rr.com) has joined
+<alisdair> camelCase is weird for erlang too, you should use underscores_for_function_names
+* mc_ (~mc_@208-90-213-56-2600hz.static.monkeybrains.net) has joined
+<aphexmunky> i didn't mean to spawn it per packet
+<alisdair> so here: https://github.com/aphexmunky/drunken-spice/blob/master/03-Implementation/app/src/app_app.erl#L26
+<alisdair> that recv call retrieves a single request
+<alisdair> you send it to handlePacket
+<alisdair> that receives the message, then calls handleTCP_transmission
+<alisdair> which closes the socket after sending a response
+<alisdair> the return value of handleTCP_transmission becomes the return value of the receive block in handlePacket
+<alisdair> but you don't check it or use it so it's discarded (which is fine)
+<alisdair> but then you loop
+<alisdair> and you wait for another message but your socket is closed and you're never going to see another message
+<MachinShin> raw spawning w/ gen_server has issues too about race conditions, iirc
+<alisdair> in tcpLoop after you send the message to handlePacket you loop and open a new listener and spawn a new handler
+<aphexmunky> i would like to improve what i've done and resubmit it, would you suggest i approach it differently or fix the issues
+<alisdair> your approach is ok
+<alisdair> apart from some style issues your code is ok
+<alisdair> but i would add an app_tcp module and an app_udp module
+<aphexmunky> yes that makes sense i should have done that anyway
+<alisdair> put those under supervision
+<alisdair> you can make them gen_servers if you want but i think it's ok to just leave them raw processes
+<winlu> just copypaste the lyse code samples for tcp/udp handlers
+<alisdair> you should probably make them gen_servers or read up on how to make your own otp compliant process with sys and proc_lib
+<alisdair> just because whoever is reviewing might not like raw processes in a supervision tree
+<aphexmunky> ok yes i can read up on that and do that
+* JParpaillon has quit (Quit: JParpaillon)
+<alisdair> proc_lib:start_link, proc_lib:init_ack and the sys module are a good start
+<aphexmunky> thank you :)
+<alisdair> also reread the chapter on otp principles to get a sense for how supervision works
+<aphexmunky> great :D
+<alisdair> and avoid spawn, use spawn_monitor and figure out how to monitor spawned processes for things that are short lived
+* mc_ has quit (Ping timeout: 272 seconds)
+<aphexmunky> avoid spawn? would it be better to pre-create a few processes to handle everything?
+* mc_ (~mc_@S0106b8c75dd05982.vn.shawcable.net) has joined
+<alisdair> nah
+<alisdair> eventually you can look into process pools
+<alisdair> but i don't think it's useful right now
+<aphexmunky> ok so when you say avoid spawn i'm not totally sure what you mean, wouldn't it be better to create separate processes to do that? or is that something gen_server would have solved for me
+<alisdair> i just mean use spawn_monitor or spawn_link instead
+<alisdair> it's pretty rare you actually want to use spawn
+<aphexmunky> ah ok, i've missed the distinction in those
+* YellowS404 is now known as YellowS4
+<alisdair> basically spawn just makes a new process somewhere and you get zero feedback on it. spawn_monitor spawns a process that will send the parent process a message if it exits and spawn_link will spawn a process that sends messages if either process exits
+<darkling> essen: I've managed to stumble over a change to my grammar that seems to have removed those unused functions, so I can only conclude that they're not normal, and you don't need to make any changed to erlang.mk.
+<ingsoc> alisdair: proc_lib:spawn_[link/monitor] even better
+<essen> darkling: thanks :-)
+<darkling> Of course, I still can't get it to parse a simple input file, but that's a whole different issue.
+<alisdair> ingsoc: yeah already pointed him in that direction
+* KushS has quit (Remote host closed the connection)
+* wildroman2 (~wildroman@bzq-79-178-137-30.red.bezeqint.net) has joined
+* KushS (~kushagra@103.231.119.64) has joined
+* loz1 has quit (Ping timeout: 256 seconds)
+* nighty^ has quit (Quit: Disappears in a puff of smoke)
+<darkling> I dropped the declaration of Endsymbol (which wasn't being output by leex anyway, because I don't have an end symbol in the language).
+<ingsoc> ah ok, missed that
+* janispauls (~janispaul@88.135.134.213) has joined
+* nighty^ (~nighty@hokuriku.rural-networks.com) has joined
+* janispauls has quit (Remote host closed the connection)
+* Thesolonius has quit (Quit: Thesolonius)

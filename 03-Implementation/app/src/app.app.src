@@ -9,6 +9,6 @@
 		cowboy,
 		stdlib
 	]},
-	{mod, {app_app, []}},
+	{mod, {app_sup, [start_link]}},
 	{env, []}
 ]}.
