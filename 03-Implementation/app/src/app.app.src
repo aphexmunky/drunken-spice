@@ -6,9 +6,8 @@
 	{registered, []},
 	{applications, [
 		kernel,
-		cowboy,
 		stdlib
 	]},
-	{mod, {app_sup, [start_link]}},
+	{mod, {app_app, []}},
 	{env, []}
 ]}.
