@@ -22,8 +22,8 @@ start(_Type, _Args) ->
 
 handle_packet(Socket) ->
   receive
-    {ok,{Address, Port, Msg}}	-> udp:handleUDP_transmission(Socket, Address, Port, Msg);
-    {ok, Packet}				-> tcp:handleTCP_transmission(Socket, Packet)
+    {ok,{Address, Port, Msg}}    -> udp:handleUDP_transmission(Socket, Address, Port, Msg);
+    {ok, Packet}                 -> tcp:handleTCP_transmission(Socket, Packet)
   end,
   handle_packet(Socket).
 
